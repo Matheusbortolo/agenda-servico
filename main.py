@@ -64,6 +64,15 @@ class MainApp:
             database=os.getenv("DB_NAME")
         )
 
+    def fecharFilhos(self):
+        """Método para fechar todas as janelas filhas abertas"""
+        if self.feriados_app is not None:
+            self.feriados_app.destroy()
+            self.feriados_app = None
+        if self.cadastro_feriados_app is not None:
+            self.cadastro_feriados_app.destroy()
+            self.cadastro_feriados_app = None
+
     def listar_cliente(self):
         print("Abrir Listar Clientes")
 
@@ -71,22 +80,19 @@ class MainApp:
         print("Abrir Novo Cliente")
 
     def listar_feriado(self):
-        """Verificar se a tela de feriados já está aberta, e caso contrário, abrir"""
-        print("Abrir Listar Feriados")
+        self.fecharFilhos()
         if not hasattr(self, 'feriados_app') or self.feriados_app is None:
             # Criar a instância da tela de feriados
             self.feriados_app = FeriadosApp(self.root)
         else:
-            print("Tela de feriados já está aberta!")
+            self.feriados_app.destroy()  # Fechar a tela atual de feriados
 
     def novo_feriado(self):
+        self.fecharFilhos()
         """Verificar se a tela de cadastro de feriado já está aberta, e caso contrário, abrir"""
-        print("Abrir Novo Feriado")
         if not hasattr(self, 'cadastro_feriados_app') or self.cadastro_feriados_app is None:
             # Criar a instância da tela de cadastro de feriados
             self.cadastro_feriados_app = CadastroFeriadoApp(self.root)
-        else:
-            print("Tela de cadastro de feriados já está aberta!")
 
     def listar_tipo_servico(self):
         print("Abrir Listar Tipos de Serviço")
