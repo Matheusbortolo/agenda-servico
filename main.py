@@ -3,6 +3,8 @@ from mysql_connection import MySQLConnection
 from tkinter import Menu
 from list_feriados import FeriadosApp 
 from new_feriados import CadastroFeriadoApp 
+from list_clientes import ClientesApp 
+from new_cliente import CadastroClienteApp 
 
 import os
 import tkinter as tk
@@ -22,6 +24,8 @@ class MainApp:
         self.root.title("Sistema de Gestão")
         self.feriados_app = None  # Variável para armazenar a instância da tela de Feriados
         self.cadastro_feriados_app = None  # Variável para armazenar a instância da tela de Feriados
+        self.clientes_app = None  # Variável para armazenar a instância da tela de Feriados
+        self.cadastro_cliente_app = None  # Variável para armazenar a instância da tela de Feriados
         
         self.conection()  # Conectar ao banco de dados
 
@@ -72,20 +76,30 @@ class MainApp:
         if self.cadastro_feriados_app is not None:
             self.cadastro_feriados_app.destroy()
             self.cadastro_feriados_app = None
+        if self.clientes_app is not None:
+            self.clientes_app.destroy()
+            self.clientes_app = None
+        if self.cadastro_cliente_app is not None:
+            self.cadastro_cliente_app.destroy()
+            self.cadastro_cliente_app = None
 
     def listar_cliente(self):
-        print("Abrir Listar Clientes")
+        self.fecharFilhos()
+        if not hasattr(self, 'clientes_app') or self.clientes_app is None:
+            # Criar a instância da tela de feriados
+            self.clientes_app = ClientesApp(self.root)
 
     def novo_cliente(self):
-        print("Abrir Novo Cliente")
+        self.fecharFilhos()
+        if not hasattr(self, 'cliecadastro_cliente_appntes_app') or self.cadastro_cliente_app is None:
+            # Criar a instância da tela de feriados
+            self.cadastro_cliente_app = CadastroClienteApp(self.root)
 
     def listar_feriado(self):
         self.fecharFilhos()
         if not hasattr(self, 'feriados_app') or self.feriados_app is None:
             # Criar a instância da tela de feriados
             self.feriados_app = FeriadosApp(self.root)
-        else:
-            self.feriados_app.destroy()  # Fechar a tela atual de feriados
 
     def novo_feriado(self):
         self.fecharFilhos()
