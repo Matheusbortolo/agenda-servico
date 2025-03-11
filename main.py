@@ -7,6 +7,7 @@ from list_clientes import ClientesApp
 from new_cliente import CadastroClienteApp 
 from list_tipos_servicos import TiposServicosApp 
 from new_tipo_servico import NewTipoServicoApp 
+from agenda import CalendarioSemanal 
 
 
 import os
@@ -31,6 +32,7 @@ class MainApp:
         self.cadastro_cliente_app = None  # Variável para armazenar a instância da tela de Feriados
         self.tipos_servicos_app = None  # Variável para armazenar a instância da tela de Feriados
         self.cadastro_tipo_servico_app = None  # Variável para armazenar a instância da tela de Feriados
+        self.agenda = None  # Variável para armazenar a instância da tela de Feriados
         
         self.conection()  # Conectar ao banco de dados
 
@@ -93,6 +95,9 @@ class MainApp:
         if self.cadastro_tipo_servico_app is not None:
             self.cadastro_tipo_servico_app.destroy()
             self.cadastro_tipo_servico_app = None
+        if self.agenda is not None:
+            self.agenda.destroy()
+            self.agenda = None
 
     def listar_cliente(self):
         self.fecharFilhos()
@@ -132,7 +137,10 @@ class MainApp:
             self.cadastro_tipo_servico_app = NewTipoServicoApp(self.root)
 
     def agendamento(self):
-        print("Abrir Agendamento")
+        self.fecharFilhos()
+        if not hasattr(self, 'agenda') or self.agenda is None:
+            # Criar a instância da tela de feriados
+            self.agenda = CalendarioSemanal(self.root)
 
 
 if __name__ == "__main__":
