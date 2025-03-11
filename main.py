@@ -8,6 +8,7 @@ from new_cliente import CadastroClienteApp
 from list_tipos_servicos import TiposServicosApp 
 from new_tipo_servico import NewTipoServicoApp 
 from agenda import CalendarioSemanal 
+from agenda_hoje import ProximosAgendamentos 
 
 
 import os
@@ -33,6 +34,7 @@ class MainApp:
         self.tipos_servicos_app = None  # Variável para armazenar a instância da tela de Feriados
         self.cadastro_tipo_servico_app = None  # Variável para armazenar a instância da tela de Feriados
         self.agenda = None  # Variável para armazenar a instância da tela de Feriados
+        self.agenda_hoje = None  # Variável para armazenar a instância da tela de Feriados
         
         self.conection()  # Conectar ao banco de dados
 
@@ -62,6 +64,8 @@ class MainApp:
 
         # Menu Agendamento
         self.menu_bar.add_command(label="Agendamento", command=self.agendamento)
+        # Menu Agendamento
+        self.menu_bar.add_command(label="Proximos Agendamentos", command=self.agendamento_hoje)
 
         # Definir o menu na janela
         self.root.config(menu=self.menu_bar)
@@ -98,6 +102,9 @@ class MainApp:
         if self.agenda is not None:
             self.agenda.destroy()
             self.agenda = None
+        if self.agenda_hoje is not None:
+            self.agenda_hoje.destroy()
+            self.agenda_hoje = None
 
     def listar_cliente(self):
         self.fecharFilhos()
@@ -141,6 +148,11 @@ class MainApp:
         if not hasattr(self, 'agenda') or self.agenda is None:
             # Criar a instância da tela de feriados
             self.agenda = CalendarioSemanal(self.root)
+    def agendamento_hoje(self):
+        self.fecharFilhos()
+        if not hasattr(self, 'agenda_hoje') or self.agenda_hoje is None:
+            # Criar a instância da tela de feriados
+            self.agenda_hoje = ProximosAgendamentos(self.root)
 
 
 if __name__ == "__main__":
