@@ -5,6 +5,9 @@ from list_feriados import FeriadosApp
 from new_feriados import CadastroFeriadoApp 
 from list_clientes import ClientesApp 
 from new_cliente import CadastroClienteApp 
+from list_tipos_servicos import TiposServicosApp 
+from new_tipo_servico import NewTipoServicoApp 
+
 
 import os
 import tkinter as tk
@@ -26,6 +29,8 @@ class MainApp:
         self.cadastro_feriados_app = None  # Variável para armazenar a instância da tela de Feriados
         self.clientes_app = None  # Variável para armazenar a instância da tela de Feriados
         self.cadastro_cliente_app = None  # Variável para armazenar a instância da tela de Feriados
+        self.tipos_servicos_app = None  # Variável para armazenar a instância da tela de Feriados
+        self.cadastro_tipo_servico_app = None  # Variável para armazenar a instância da tela de Feriados
         
         self.conection()  # Conectar ao banco de dados
 
@@ -82,6 +87,12 @@ class MainApp:
         if self.cadastro_cliente_app is not None:
             self.cadastro_cliente_app.destroy()
             self.cadastro_cliente_app = None
+        if self.tipos_servicos_app is not None:
+            self.tipos_servicos_app.destroy()
+            self.tipos_servicos_app = None
+        if self.cadastro_tipo_servico_app is not None:
+            self.cadastro_tipo_servico_app.destroy()
+            self.cadastro_tipo_servico_app = None
 
     def listar_cliente(self):
         self.fecharFilhos()
@@ -109,10 +120,16 @@ class MainApp:
             self.cadastro_feriados_app = CadastroFeriadoApp(self.root)
 
     def listar_tipo_servico(self):
-        print("Abrir Listar Tipos de Serviço")
+        self.fecharFilhos()
+        if not hasattr(self, 'tipos_servicos_app') or self.tipos_servicos_app is None:
+            # Criar a instância da tela de feriados
+            self.tipos_servicos_app = TiposServicosApp(self.root)
 
     def novo_tipo_servico(self):
-        print("Abrir Novo Tipo de Serviço")
+        self.fecharFilhos()
+        if not hasattr(self, 'cadastro_tipo_servico_app') or self.cadastro_tipo_servico_app is None:
+            # Criar a instância da tela de feriados
+            self.cadastro_tipo_servico_app = NewTipoServicoApp(self.root)
 
     def agendamento(self):
         print("Abrir Agendamento")
