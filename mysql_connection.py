@@ -20,7 +20,6 @@ class MySQLConnection:
                 database=self.database
             )
             if self.connection.is_connected():
-                print("Conexão com o MySQL foi bem-sucedida.")
                 self.cursor = self.connection.cursor()
         except Error as e:
             print(f"Erro ao conectar ao MySQL: {e}")
@@ -34,12 +33,10 @@ class MySQLConnection:
                 else:
                     self.cursor.execute(query)
                 self.connection.commit()  # Confirma a execução da consulta
-                print("Consulta executada com sucesso.")
             except Error as e:
                 print(f"Erro ao executar consulta: {e}")
     
     def fetch_all(self, query, params=None):
-        print(self.cursor)
         """Executa uma consulta SELECT e retorna todos os resultados."""
         if self.connection and self.cursor:
             try:
@@ -47,7 +44,6 @@ class MySQLConnection:
                     self.cursor.execute(query, params)
                 else:
                     self.cursor.execute(query)
-                    print('else')
                 return self.cursor.fetchall()  # Retorna os resultados
             except Error as e:
                 print(f"Erro ao buscar dados: {e}")
@@ -57,10 +53,8 @@ class MySQLConnection:
         """Fecha o cursor e a conexão com o banco de dados."""
         if self.cursor:
             self.cursor.close()
-            print("Cursor fechado.")
         if self.connection:
             self.connection.close()
-            print("Conexão com o MySQL fechada.")
 
 # Exemplo de uso da classe:
 if __name__ == "__main__":

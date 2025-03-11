@@ -14,6 +14,10 @@ db_password = os.getenv("DB_PASSWORD")
 db_name = os.getenv("DB_NAME")
 
 class CadastroFeriadoApp:
+    def destroy(self):
+        """Método para destruir a janela de feriados."""
+        self.frame.destroy()  # Fecha a janela de feriados
+
     def __init__(self, parent):
         self.parent = parent  # A janela principal (root)
 

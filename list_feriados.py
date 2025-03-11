@@ -13,6 +13,10 @@ db_password = os.getenv("DB_PASSWORD")
 db_name = os.getenv("DB_NAME")
 
 class FeriadosApp:
+    def destroy(self):
+        """Método para destruir a janela de feriados."""
+        self.frame.destroy()  # Fecha a janela de feriados
+        
     def formatar_data(self, data_str):
         """Converte a string de data no formato 'YYYY-MM-DD HH:MM:SS' para o formato 'DD/MM/YYYY HH:MM'."""
         try:
@@ -52,7 +56,6 @@ class FeriadosApp:
     def carregar_feriados(self):
         """Conectar ao banco de dados e carregar os feriados na interface."""
         self.db.connect()  # Conectar ao banco de dados
-        print('Carregando feriados...')
 
         # Realizar a consulta SQL para pegar os feriados
         query = "SELECT nome, datahora_inicio, datahora_fim, flag_parar FROM feriados order by datahora_inicio"
