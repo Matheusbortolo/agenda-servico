@@ -1,129 +1,104 @@
-import json
-from datetime import datetime
+from dotenv import load_dotenv 
+from mysql_connection import MySQLConnection
+from tkinter import Menu
+from list_feriados import FeriadosApp 
+from new_feriados import CadastroFeriadoApp 
+
 import os
 import tkinter as tk
 from tkinter import ttk, messagebox
-from tkcalendar import Calendar, DateEntry
 
-class Agenda:
+# Carregar variáveis de ambiente
+load_dotenv()
+db_host = os.getenv("DB_HOST")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_name = os.getenv("DB_NAME")
+
+
+class MainApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Agenda para Prestadores de Serviço")
-        self.root.state('zoomed')  # Abre maximizado
+        self.root.title("Sistema de Gestão")
+        self.feriados_app = None  # Variável para armazenar a instância da tela de Feriados
+        self.cadastro_feriados_app = None  # Variável para armazenar a instância da tela de Feriados
         
-        self.clientes = []
-        self.agendamentos = []
-        self.carregar_dados()
+        self.conection()  # Conectar ao banco de dados
 
-        # Criar menu
-        menu_bar = tk.Menu(root)
-        root.config(menu=menu_bar)
-        
-        menu_gerenciar = tk.Menu(menu_bar, tearoff=0)
-        menu_gerenciar.add_command(label="Cadastrar Cliente", command=self.cadastrar_cliente)
-        menu_gerenciar.add_command(label="Agendar Serviço", command=self.agendar_servico)
-        menu_gerenciar.add_command(label="Visualizar Agendamentos", command=self.visualizar_agendamentos)
-        menu_gerenciar.add_separator()
-        menu_gerenciar.add_command(label="Sair", command=root.quit)
-        menu_bar.add_cascade(label="Menu", menu=menu_gerenciar)
-        
-        self.tree = ttk.Treeview(root, columns=("Cliente", "Serviço", "Data", "Valor"), show="headings")
-        self.tree.heading("Cliente", text="Cliente")
-        self.tree.heading("Serviço", text="Serviço")
-        self.tree.heading("Data", text="Data")
-        self.tree.heading("Valor", text="Valor (R$)")
-        self.tree.pack(expand=True, fill="both", padx=20, pady=20)
-        
-        self.atualizar_listagem()
+        # Maximizar a janela
+        self.root.state("zoomed")
 
-    def carregar_dados(self):
-        try:
-            with open("agenda.json", "r") as file:
-                data = json.load(file)
-                self.clientes = data.get("clientes", [])
-                self.agendamentos = data.get("agendamentos", [])
-        except FileNotFoundError:
-            pass
+        # Criação do menu principal
+        self.menu_bar = Menu(self.root)
 
-    def salvar_dados(self):
-        with open("agenda.json", "w") as file:
-            json.dump({"clientes": self.clientes, "agendamentos": self.agendamentos}, file, indent=4)
+        # Menu Cliente
+        cliente_menu = Menu(self.menu_bar, tearoff=0)
+        cliente_menu.add_command(label="Listar Clientes", command=self.listar_cliente)
+        cliente_menu.add_command(label="Novo Cliente", command=self.novo_cliente)
+        self.menu_bar.add_cascade(label="Cliente", menu=cliente_menu)
 
-    def cadastrar_cliente(self):
-        def salvar_cliente():
-            nome = entry_nome.get()
-            telefone = entry_telefone.get()
-            if nome and telefone:
-                self.clientes.append({"nome": nome, "telefone": telefone})
-                self.salvar_dados()
-                messagebox.showinfo("Sucesso", "Cliente cadastrado com sucesso!")
-                janela.destroy()
-            else:
-                messagebox.showerror("Erro", "Preencha todos os campos!")
-        
-        janela = tk.Toplevel(self.root)
-        janela.title("Cadastrar Cliente")
-        tk.Label(janela, text="Nome:").pack()
-        entry_nome = tk.Entry(janela)
-        entry_nome.pack()
-        tk.Label(janela, text="Telefone:").pack()
-        entry_telefone = tk.Entry(janela)
-        entry_telefone.pack()
-        tk.Button(janela, text="Salvar", command=salvar_cliente).pack()
-    
-    def agendar_servico(self):
-        def salvar_agendamento():
-            nome = entry_nome.get()
-            servico = entry_servico.get()
-            data = cal.get_date() + " " + entry_hora.get()
-            valor = entry_valor.get()
-            
-            if not any(c["nome"] == nome for c in self.clientes):
-                messagebox.showerror("Erro", "Cliente não encontrado! Cadastre primeiro.")
-                return
-            
-            try:
-                datetime.strptime(data, "%d/%m/%Y %H:%M")
-                valor = float(valor)
-            except ValueError:
-                messagebox.showerror("Erro", "Formato de data ou valor inválido!")
-                return
-            
-            self.agendamentos.append({"cliente": nome, "servico": servico, "data": data, "valor": valor})
-            self.salvar_dados()
-            self.atualizar_listagem()
-            messagebox.showinfo("Sucesso", "Serviço agendado com sucesso!")
-            janela.destroy()
-        
-        janela = tk.Toplevel(self.root)
-        janela.title("Agendar Serviço")
-        tk.Label(janela, text="Nome do Cliente:").pack()
-        entry_nome = tk.Entry(janela)
-        entry_nome.pack()
-        tk.Label(janela, text="Serviço:").pack()
-        entry_servico = tk.Entry(janela)
-        entry_servico.pack()
-        tk.Label(janela, text="Data:").pack()
-        cal = DateEntry(janela, date_pattern='dd/MM/yyyy')
-        cal.pack()
-        tk.Label(janela, text="Hora (HH:MM):").pack()
-        entry_hora = tk.Entry(janela)
-        entry_hora.pack()
-        tk.Label(janela, text="Valor (R$):").pack()
-        entry_valor = tk.Entry(janela)
-        entry_valor.pack()
-        tk.Button(janela, text="Salvar", command=salvar_agendamento).pack()
-    
-    def visualizar_agendamentos(self):
-        self.atualizar_listagem()
+        # Menu Feriado
+        feriado_menu = Menu(self.menu_bar, tearoff=0)
+        feriado_menu.add_command(label="Listar Feriados", command=self.listar_feriado)
+        feriado_menu.add_command(label="Novo Feriado", command=self.novo_feriado)
+        self.menu_bar.add_cascade(label="Feriado", menu=feriado_menu)
 
-    def atualizar_listagem(self):
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-        for ag in self.agendamentos:
-            self.tree.insert("", "end", values=(ag["cliente"], ag["servico"], ag["data"], f"R$ {ag['valor']:.2f}"))
+        # Menu Tipo Serviço
+        tipo_servico_menu = Menu(self.menu_bar, tearoff=0)
+        tipo_servico_menu.add_command(label="Listar Tipos de Serviço", command=self.listar_tipo_servico)
+        tipo_servico_menu.add_command(label="Novo Tipo de Serviço", command=self.novo_tipo_servico)
+        self.menu_bar.add_cascade(label="Tipo Serviço", menu=tipo_servico_menu)
+
+        # Menu Agendamento
+        self.menu_bar.add_command(label="Agendamento", command=self.agendamento)
+
+        # Definir o menu na janela
+        self.root.config(menu=self.menu_bar)
+
+    def conection(self):
+        """Conectar ao banco de dados."""
+        self.db = MySQLConnection(
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME")
+        )
+
+    def listar_cliente(self):
+        print("Abrir Listar Clientes")
+
+    def novo_cliente(self):
+        print("Abrir Novo Cliente")
+
+    def listar_feriado(self):
+        """Verificar se a tela de feriados já está aberta, e caso contrário, abrir"""
+        print("Abrir Listar Feriados")
+        if not hasattr(self, 'feriados_app') or self.feriados_app is None:
+            # Criar a instância da tela de feriados
+            self.feriados_app = FeriadosApp(self.root)
+        else:
+            print("Tela de feriados já está aberta!")
+
+    def novo_feriado(self):
+        """Verificar se a tela de cadastro de feriado já está aberta, e caso contrário, abrir"""
+        print("Abrir Novo Feriado")
+        if not hasattr(self, 'cadastro_feriados_app') or self.cadastro_feriados_app is None:
+            # Criar a instância da tela de cadastro de feriados
+            self.cadastro_feriados_app = CadastroFeriadoApp(self.root)
+        else:
+            print("Tela de cadastro de feriados já está aberta!")
+
+    def listar_tipo_servico(self):
+        print("Abrir Listar Tipos de Serviço")
+
+    def novo_tipo_servico(self):
+        print("Abrir Novo Tipo de Serviço")
+
+    def agendamento(self):
+        print("Abrir Agendamento")
+
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = Agenda(root)
-    root.mainloop()
+    root = tk.Tk()  # Criando a janela principal
+    app = MainApp(root)  # Inicializando a classe da interface principal
+    root.mainloop()  # Iniciar o loop da interface gráfica
