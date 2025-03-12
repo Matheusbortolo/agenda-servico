@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
@@ -13,6 +12,8 @@ db_name = os.getenv("DB_NAME")
 
 class ProximosAgendamentos:
     def __init__(self, root):
+        self.root = root  # ✅ Usa a janela principal
+
         # Criar a instância de conexão com o banco de dados
         self.db = MySQLConnection(
             host=db_host, 
@@ -20,11 +21,7 @@ class ProximosAgendamentos:
             password=db_password, 
             database=db_name
         )
-
-        self.root = root
-        self.root.title("Próximos Agendamentos")
-        self.root.geometry("600x400")
-
+        
         # Inicializa a conexão com o banco
         self.db.connect()
 
@@ -46,12 +43,12 @@ class ProximosAgendamentos:
         self.next_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
         # Label para mostrar o dia atual
-        self.date_label = tk.Label(self.main_frame, text="", font=("Arial", 14, "bold"))
+        self.date_label = tk.Label(self.main_frame, text="", font=("Arial", 14, "bold"), bg="#888888")
         self.date_label.pack(pady=20)
 
-        # Lista de agendamentos
-        self.agenda_listbox = tk.Listbox(self.main_frame, width=50, height=10)
-        self.agenda_listbox.pack(pady=10)
+        # Frame para os agendamentos
+        self.agenda_frame = tk.Frame(self.main_frame, bg="#888888")
+        self.agenda_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # Atualizar a tela com os agendamentos do dia
         self.update_agenda()
@@ -59,9 +56,9 @@ class ProximosAgendamentos:
     def fetch_agendamentos(self):
         """Busca os agendamentos do banco de dados para o dia atual."""
         query = """
-            SELECT datahora_inicio, datahora_fim, obs, a.endereco, c.nome, c.email, c.endereco, c.telefone
+            SELECT a.datahora_fim, a.datahora_inicio, a.endereco as endereco_agendamento, a.obs, c.email, c.endereco as endereco_cliente, c.nome, c.telefone
             FROM agendamentos a
-            left join clientes c on c.id = a.id_cliente
+            LEFT JOIN clientes c ON c.id = a.id_cliente
             WHERE datahora_inicio BETWEEN %s AND %s
             ORDER BY datahora_inicio
         """
@@ -73,8 +70,9 @@ class ProximosAgendamentos:
 
     def update_agenda(self):
         """Atualiza a tela com os agendamentos do dia atual."""
-        # Limpar a lista antes de atualizar
-        self.agenda_listbox.delete(0, tk.END)
+        # Limpar os agendamentos antigos
+        for widget in self.agenda_frame.winfo_children():
+            widget.destroy()
 
         # Buscar agendamentos do banco
         agendamentos = self.fetch_agendamentos()
@@ -82,16 +80,33 @@ class ProximosAgendamentos:
         # Exibir o dia atual
         self.date_label.config(text=f"Agendamentos de {self.current_day.strftime('%d/%m/%Y')}")
 
-        # Adicionar os agendamentos na lista
+        # Adicionar os agendamentos como Labels
         if agendamentos:
             for agendamento in agendamentos:
-                start_time = agendamento[0].strftime('%H:%M')
-                end_time = agendamento[1].strftime('%H:%M')
-                descricao = agendamento[2]
-                cliente = agendamento[4]
-                self.agenda_listbox.insert(tk.END, f"{start_time} - {end_time}: {descricao} - {cliente}")
+
+
+
+                end_time = agendamento[0].strftime('%H:%M')
+                start_time = agendamento[1].strftime('%H:%M')
+                endereco_agendamento = agendamento[2]
+                descricao = agendamento[3]
+                email = agendamento[4]
+                endereco_cliente = agendamento[5]
+                cliente = agendamento[6]
+                telefone = agendamento[7]
+
+
+                agendamento_label = tk.Label(
+                    self.agenda_frame, 
+                    text=f"Inicio:{start_time} - Fim:{end_time}: - Endereço Agendamento: {endereco_agendamento} - Descrição:{descricao} - Cliente:{cliente}", 
+                    font=("Arial", 12),  
+                    bg="#888888",
+                    anchor="w"
+                )
+                agendamento_label.pack(fill=tk.X, padx=5, pady=2)
         else:
-            self.agenda_listbox.insert(tk.END, "Nenhum agendamento para hoje.")
+            no_agenda_label = tk.Label(self.agenda_frame, text="Nenhum agendamento para hoje.", font=("Arial", 12), bg="white")
+            no_agenda_label.pack(pady=10)
 
     def prev_day(self):
         """Voltar um dia."""

@@ -26,17 +26,17 @@ class NewTipoServicoApp:
         self.frame.pack(fill=tk.BOTH, expand=True)  # Faz o frame ocupar toda a área da janela principal
 
         # Título
-        self.title_label = tk.Label(self.frame, text="Cadastro de Tipo de Serviço", font=("Arial", 16))
+        self.title_label = tk.Label(self.frame, text="Cadastro de Tipo de Serviço", font=("Arial", 16), bg="#888888")
         self.title_label.pack(pady=20)
 
         # Campos do formulário para cadastrar o fliente
-        self.label_nome = tk.Label(self.frame, text="Nome do Tipo de Serviço:")
+        self.label_nome = tk.Label(self.frame, text="Nome do Tipo de Serviço:", bg="#888888")
         self.label_nome.pack(pady=5)
         self.entry_nome = tk.Entry(self.frame)
         self.entry_nome.pack(pady=5)
 
         # Campos do formulário para cadastrar o fliente
-        self.label_obs = tk.Label(self.frame, text="Obs:")
+        self.label_obs = tk.Label(self.frame, text="Obs:", bg="#888888")
         self.label_obs.pack(pady=5)
         self.entry_obs = tk.Entry(self.frame)
         self.entry_obs.pack(pady=5)

@@ -32,9 +32,7 @@ class CalendarioSemanal:
             database=db_name
         )
 
-        self.root = root
-        self.root.title("Agenda Semanal")
-        self.root.geometry("1000x600")
+        self.root = root  # ✅ Agora usa a janela principal em vez de criar outra
 
         self.current_week_start = datetime.today() - timedelta(days=datetime.today().weekday())  # Segunda-feira da semana atual
 

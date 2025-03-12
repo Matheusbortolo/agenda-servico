@@ -26,41 +26,46 @@ class CadastroFeriadoApp:
         self.frame.pack(fill=tk.BOTH, expand=True)  # Faz o frame ocupar toda a área da janela principal
 
         # Título
-        self.title_label = tk.Label(self.frame, text="Cadastro de Feriado", font=("Arial", 16))
+        self.title_label = tk.Label(self.frame, text="Cadastro de Feriado", font=("Arial", 16), bg="#888888")
         self.title_label.pack(pady=20)
-
-        # Campos do formulário para cadastrar o feriado
-        self.label_nome = tk.Label(self.frame, text="Nome do Feriado:")
+        
+        # Campos do formulário para cadastrar o fliente
+        
+        self.label_nome = tk.Label(self.frame, text="Nome do Feriado:", bg="#888888")
         self.label_nome.pack(pady=5)
-        self.entry_nome = tk.Entry(self.frame)
+        self.entry_nome = tk.Entry(self.frame, bd=0, font=("Arial", 12), fg="black", bg="#E1E1E1", relief="flat")
         self.entry_nome.pack(pady=5)
 
-        self.label_data_inicio = tk.Label(self.frame, text="Data Início:")
+
+        self.label_data_inicio = tk.Label(self.frame, text="Data Início:", bg="#888888")
         self.label_data_inicio.pack(pady=5)
+        
         self.data_inicio = StringVar()
-        self.entry_data_inicio = DateEntry(self.frame, textvariable=self.data_inicio, width=12, background="darkblue", foreground="white", borderwidth=2, date_pattern='yyyy-mm-dd')
+        self.entry_data_inicio = DateEntry(self.frame, textvariable=self.data_inicio, width=12, background="#444444", foreground="#E1E1E1", borderwidth=2, date_pattern='yyyy-mm-dd')
         self.entry_data_inicio.pack(pady=5)
 
-        self.label_hora_inicio = tk.Label(self.frame, text="Hora Início:")
+
+
+        self.label_hora_inicio = tk.Label(self.frame, text="Hora Início:", bg="#888888")
         self.label_hora_inicio.pack(pady=5)
         self.entry_hora_inicio = ttk.Combobox(self.frame, values=[f'{i:02d}:{j:02d}' for i in range(24) for j in range(0, 60, 5)], state="readonly")
         self.entry_hora_inicio.set('00:00')  # Definindo um valor inicial
         self.entry_hora_inicio.pack(pady=5)
 
-        self.label_data_fim = tk.Label(self.frame, text="Data Fim:")
+        self.label_data_fim = tk.Label(self.frame, text="Data Fim:", bg="#888888")
         self.label_data_fim.pack(pady=5)
         self.data_fim = StringVar()
         self.entry_data_fim = DateEntry(self.frame, textvariable=self.data_fim, width=12, background="darkblue", foreground="white", borderwidth=2, date_pattern='yyyy-mm-dd')
         self.entry_data_fim.pack(pady=5)
 
-        self.label_hora_fim = tk.Label(self.frame, text="Hora Fim:")
+        self.label_hora_fim = tk.Label(self.frame, text="Hora Fim:", bg="#888888")
         self.label_hora_fim.pack(pady=5)
         self.entry_hora_fim = ttk.Combobox(self.frame, values=[f'{i:02d}:{j:02d}' for i in range(24) for j in range(0, 60, 5)], state="readonly")
         self.entry_hora_fim.set('00:00')  # Definindo um valor inicial
         self.entry_hora_fim.pack(pady=5)
 
         # Alterado para ComboBox com "Sim" ou "Não"
-        self.label_flag_parar = tk.Label(self.frame, text="Flag Parar (Sim ou Não):")
+        self.label_flag_parar = tk.Label(self.frame, text="Flag Parar (Sim ou Não):", bg="#888888")
         self.label_flag_parar.pack(pady=5)
         self.entry_flag_parar = ttk.Combobox(self.frame, values=["Sim", "Não"], state="readonly")
         self.entry_flag_parar.set("Não")  # Definindo um valor inicial
