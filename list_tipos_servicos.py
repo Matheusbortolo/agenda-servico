@@ -20,7 +20,7 @@ class TiposServicosApp:
         self.parent = parent  # A janela principal (root)
 
         # Configuração do Frame (contêiner) para a interface de TiposServicos
-        self.frame = tk.Frame(self.parent)
+        self.frame = tk.Frame(self.parent, bg="#888888")
         self.frame.pack(fill=tk.BOTH, expand=True)  # Faz o frame ocupar toda a área da janela principal
 
         # Criação do Treeview para exibir os tipos_servico

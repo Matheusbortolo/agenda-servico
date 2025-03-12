@@ -31,15 +31,39 @@ class ClientesApp:
         self.parent = parent  # A janela principal (root)
 
         # Configuração do Frame (contêiner) para a interface de clientes
-        self.frame = tk.Frame(self.parent)
+        self.frame = tk.Frame(self.parent, bg="#888888")  # Usando a cor cinza #888888
         self.frame.pack(fill=tk.BOTH, expand=True)  # Faz o frame ocupar toda a área da janela principal
+
 
         # Criação do Treeview para exibir os clientes
         self.tree = ttk.Treeview(self.frame, columns=("Nome", "Endereço", "Telefone", "E-mail"), show="headings")
+        
+        # Definir os cabeçalhos das colunas
         self.tree.heading("Nome", text="Nome")
         self.tree.heading("Endereço", text="Endereço")
         self.tree.heading("Telefone", text="Telefone")
         self.tree.heading("E-mail", text="E-mail")
+        
+        # Alterando o estilo do Treeview
+        style = ttk.Style()
+        
+        # Estilizar o Treeview
+        style.configure("Treeview",
+                        background="#888888",  # Cor de fundo das células
+                        foreground="white",    # Cor do texto das células
+                        fieldbackground="#888888")  # Cor de fundo das células
+
+        # Estilizar os cabeçalhos
+        style.configure("Treeview.Heading",
+                        background="#888888",  # Cor de fundo do cabeçalho
+                        foreground="white",    # Cor do texto no cabeçalho
+                        font=("Arial", 10, "bold"))  # Alterar fonte do cabeçalho se necessário
+
+        # Alterando a cor da linha selecionada
+        style.map("Treeview",
+                  background=[("selected", "#3c3c3c")],  # Cor de fundo da linha selecionada
+                  foreground=[("selected", "white")])     # Cor do texto da linha selecionada
+        
         self.tree.pack(fill=tk.BOTH, expand=True)
 
         # Criar a instância de conexão com o banco de dados
@@ -58,7 +82,7 @@ class ClientesApp:
         self.db.connect()  # Conectar ao banco de dados
 
         # Realizar a consulta SQL para pegar os clientes
-        query = "SELECT nome,endereco, telefone, email FROM clientes "
+        query = "SELECT nome, endereco, telefone, email FROM clientes"
         clientes = self.db.fetch_all(query)  # Buscando todos os resultados
 
         # Limpar a tabela antes de preencher novamente

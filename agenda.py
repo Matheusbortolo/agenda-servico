@@ -42,7 +42,7 @@ class CalendarioSemanal:
         self.db.connect()
 
         # Frame principal
-        self.main_frame = tk.Frame(self.root)
+        self.main_frame = tk.Frame(self.root, bg="#888888")
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Criar Canvas para rolagem

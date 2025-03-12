@@ -32,7 +32,7 @@ class ProximosAgendamentos:
         self.current_day = datetime.today()
 
         # Frame principal
-        self.main_frame = tk.Frame(self.root)
+        self.main_frame = tk.Frame(self.root, bg="#888888")
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Criar botões de navegação
