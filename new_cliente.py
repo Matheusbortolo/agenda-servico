@@ -27,34 +27,36 @@ class CadastroClienteApp:
 
 
         # Título
-        self.title_label = tk.Label(self.frame, text="Cadastro de Cliente", font=("Arial", 16))
+        self.title_label = tk.Label(self.frame, text="Cadastro de Cliente", font=("Arial", 20, "bold"), bg="#888888")
         self.title_label.pack(pady=20)
 
-        # Campos do formulário para cadastrar o fliente
-        self.label_nome = tk.Label(self.frame, text="Nome do Cliente:")
-        self.label_nome.pack(pady=5)
-        self.entry_nome = tk.Entry(self.frame)
-        self.entry_nome.pack(pady=5)
+
 
         # Campos do formulário para cadastrar o fliente
-        self.label_endereco = tk.Label(self.frame, text="Endereço:")
+        self.label_nome = tk.Label(self.frame, text="Nome do Cliente:", bg="#888888")
+        self.label_nome.pack(pady=5)
+        self.entry_nome = tk.Entry(self.frame, bd=0, font=("Arial", 12), fg="black", bg="#E1E1E1", relief="flat")
+        self.entry_nome.pack(pady=5)
+
+
+        # Campos do formulário para cadastrar o fliente
+        self.label_endereco = tk.Label(self.frame, text="Endereço:", bg="#888888")
         self.label_endereco.pack(pady=5)
-        self.entry_endereco = tk.Entry(self.frame)
+        self.entry_endereco =  tk.Entry(self.frame, bd=0, font=("Arial", 12), fg="black", bg="#E1E1E1", relief="flat")
         self.entry_endereco.pack(pady=5)
 
         # Campos do formulário para cadastrar o fliente
-        self.label_telefone = tk.Label(self.frame, text="Telefone:")
+        self.label_telefone = tk.Label(self.frame, text="Telefone:", bg="#888888")
         self.label_telefone.pack(pady=5)
-        self.entry_telefone = tk.Entry(self.frame)
+        self.entry_telefone = tk.Entry(self.frame, bd=0, font=("Arial", 12), fg="black", bg="#E1E1E1", relief="flat")
         self.entry_telefone.pack(pady=5)
 
         # Campos do formulário para cadastrar o fliente
-        self.label_email = tk.Label(self.frame, text="E-mail:")
+        self.label_email = tk.Label(self.frame, text="E-mail:", bg="#888888")
         self.label_email.pack(pady=5)
-        self.entry_email = tk.Entry(self.frame)
+        self.entry_email = tk.Entry(self.frame, bd=0, font=("Arial", 12), fg="black", bg="#E1E1E1", relief="flat")
         self.entry_email.pack(pady=5)
-
-
+        
         # Botão para cadastrar o fliente
         self.button_cadastrar = tk.Button(self.frame, text="Cadastrar Cliente", command=self.cadastrar_fliente)
         self.button_cadastrar.pack(pady=20)
