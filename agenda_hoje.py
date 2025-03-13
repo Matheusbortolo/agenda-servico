@@ -2,7 +2,8 @@ import tkinter as tk
 from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
-from mysql_connection import MySQLConnection  # Importando a classe de conexão
+from mysql_connection import MySQLConnection
+from new_agendamento import CadastroAgendamentoApp  # Importando a classe de conexão
 
 load_dotenv()
 db_host = os.getenv("DB_HOST")
@@ -33,11 +34,15 @@ class ProximosAgendamentos:
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
         # Criar botões de navegação
-        self.nav_frame = tk.Frame(self.root)
+        self.nav_frame = tk.Frame(self.root, bg="#888888")
         self.nav_frame.pack(fill=tk.X)
 
         self.prev_button = tk.Button(self.nav_frame, text="◀ Dia Anterior", command=self.prev_day)
         self.prev_button.pack(side=tk.LEFT, padx=10, pady=5)
+        
+        self.add_button = tk.Button(self.nav_frame, text="Novo Agendamento", command=lambda: CadastroAgendamentoApp(self.root))
+        self.add_button.pack(padx=10, pady=5)
+        
 
         self.next_button = tk.Button(self.nav_frame, text="Próximo Dia ▶", command=self.next_day)
         self.next_button.pack(side=tk.RIGHT, padx=10, pady=5)
@@ -105,7 +110,7 @@ class ProximosAgendamentos:
                 )
                 agendamento_label.pack(fill=tk.X, padx=5, pady=2)
         else:
-            no_agenda_label = tk.Label(self.agenda_frame, text="Nenhum agendamento para hoje.", font=("Arial", 12), bg="white")
+            no_agenda_label = tk.Label(self.agenda_frame, text="Nenhum agendamento para hoje.", font=("Arial", 12), bg="#888888")
             no_agenda_label.pack(pady=10)
 
     def prev_day(self):
