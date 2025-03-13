@@ -3,6 +3,7 @@ from tkinter import ttk
 from mysql_connection import MySQLConnection  # Importando a classe de conexão MySQL
 from dotenv import load_dotenv
 from datetime import datetime
+from request import APIRequest
 
 import os
 
@@ -30,33 +31,24 @@ class TiposServicosApp:
         self.tree.heading("Obs", text="Obs")
         self.tree.pack(fill=tk.BOTH, expand=True)
 
-        # Criar a instância de conexão com o banco de dados
-        self.db = MySQLConnection(
-            host=db_host, 
-            user=db_user, 
-            password=db_password, 
-            database=db_name
-        )
-
         # Carregar os tipos_servico assim que a tela for aberta
         self.carregar_tipos_servico()
 
     def carregar_tipos_servico(self):
-        """Conectar ao banco de dados e carregar os tipos_servico na interface."""
-        self.db.connect()  # Conectar ao banco de dados
-
-        # Realizar a consulta SQL para pegar os tipos_servico
-        query = "SELECT * FROM tipo_servico "
-        tipos_servico = self.db.fetch_all(query)  # Buscando todos os resultados
-
+        api = APIRequest(
+            base_url="http://127.0.0.1:8000",
+            auth_url="http://127.0.0.1:8000/token/",
+            username="matheus",
+            password="senha123"
+        )
+        tipos_servico = api.get(endpoint='/tipo-servico/')
+        print(tipos_servico)
         # Limpar a tabela antes de preencher novamente
         for item in self.tree.get_children():
             self.tree.delete(item)
 
         # Verificando se existem tipos_servico retornados e inserindo no Treeview
-        if tipos_servico:
-            for feriado in tipos_servico:
-                self.tree.insert("", "end", values=(feriado[0], feriado[1], feriado[2], ))
+        if tipos_servico['message']:
+            for feriado in tipos_servico['message']:
+                self.tree.insert("", "end", values=(feriado['id'], feriado['nome'], feriado['obs'], ))
 
-        # Fechar a conexão com o banco de dados
-        self.db.close()

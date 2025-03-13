@@ -4,29 +4,21 @@ from tkcalendar import DateEntry
 from datetime import datetime
 from mysql_connection import MySQLConnection  # Classe de conexão
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
-db_host = os.getenv("DB_HOST")
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
-db_name = os.getenv("DB_NAME")
+from request import APIRequest
 
 
+api = APIRequest(
+    base_url="http://127.0.0.1:8000",
+    auth_url="http://127.0.0.1:8000/token/",
+    username="matheus",
+    password="senha123"
+)
 class CadastroAgendamentoApp:
     def __init__(self, parent):
         self.window = tk.Toplevel(parent)  # Criando uma nova janela separada
         self.window.title("Novo Agendamento")
         self.window.geometry("400x400")
 
-        # Conectar ao banco
-        self.db = MySQLConnection(
-            host=db_host, 
-            user=db_user, 
-            password=db_password, 
-            database=db_name
-        )
-        self.db.connect()
 
         # Criando os campos da tela
         tk.Label(self.window, text="Data/Hora Início:").pack(pady=2)
@@ -65,12 +57,13 @@ class CadastroAgendamentoApp:
         self.window.protocol("WM_DELETE_WINDOW", self.close_db)
 
     def carregar_comboboxes(self):
-        """Carrega os valores para as comboboxes de serviços e clientes do banco de dados."""
-        servicos = self.db.fetch_all("SELECT id, nome FROM tipo_servico")
-        self.id_servico["values"] = [f"{s[0]} - {s[1]}" for s in servicos]
 
-        clientes = self.db.fetch_all("SELECT id, nome FROM clientes")
-        self.id_cliente["values"] = [f"{c[0]} - {c[1]}" for c in clientes]
+        """Carrega os valores para as comboboxes de serviços e clientes do banco de dados."""
+        servicos = api.get(endpoint='/tipo-servico/')
+        self.id_servico["values"] = [f"{s['id']} - {s['nome']}" for s in servicos['message']]
+
+        clientes = api.get(endpoint='/clientes/')
+        self.id_cliente["values"] = [f"{c['id']} - {c['nome']}" for c in clientes['message']]
 
     def salvar_agendamento(self):
         """Salva o novo agendamento no banco de dados."""
@@ -84,11 +77,11 @@ class CadastroAgendamentoApp:
             endereco = self.endereco.get()
             obs = self.obs.get()
 
-            query = """
-                INSERT INTO agendamentos (datahora_inicio, datahora_fim, id_servico, id_cliente, endereco, obs)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """
-            self.db.execute_query(query, (inicio, fim, id_servico, id_cliente, endereco, obs))
+
+            # feriados = api.get(endpoint='/feriados/')
+            agenda = {"datahora_inicio":inicio,"datahora_fim":fim,"id_servico":id_servico,"obs":obs,"endereco":endereco,"id_cliente":id_cliente}
+            res = api.post(endpoint='/agenda/', data=agenda)
+            print(res)
             
             messagebox.showinfo("Sucesso", "Agendamento salvo com sucesso!")
             self.window.destroy()  # Fecha a janela após salvar
@@ -97,7 +90,6 @@ class CadastroAgendamentoApp:
 
     def close_db(self):
         """Fecha a conexão com o banco ao sair."""
-        self.db.close()
         self.window.destroy()
 
 # Criar uma função para abrir a tela em uma nova janela

@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from mysql_connection import MySQLConnection
 from new_agendamento import CadastroAgendamentoApp  # Importando a classe de conexão
+from request import APIRequest
 
 load_dotenv()
 db_host = os.getenv("DB_HOST")
@@ -15,16 +16,7 @@ class ProximosAgendamentos:
     def __init__(self, root):
         self.root = root  # ✅ Usa a janela principal
 
-        # Criar a instância de conexão com o banco de dados
-        self.db = MySQLConnection(
-            host=db_host, 
-            user=db_user, 
-            password=db_password, 
-            database=db_name
-        )
         
-        # Inicializa a conexão com o banco
-        self.db.connect()
 
         # Definir o dia atual
         self.current_day = datetime.today()
@@ -58,20 +50,45 @@ class ProximosAgendamentos:
         # Atualizar a tela com os agendamentos do dia
         self.update_agenda()
 
-    def fetch_agendamentos(self):
-        """Busca os agendamentos do banco de dados para o dia atual."""
-        query = """
-            SELECT a.datahora_fim, a.datahora_inicio, a.endereco as endereco_agendamento, a.obs, c.email, c.endereco as endereco_cliente, c.nome, c.telefone
-            FROM agendamentos a
-            LEFT JOIN clientes c ON c.id = a.id_cliente
-            WHERE datahora_inicio BETWEEN %s AND %s
-            ORDER BY datahora_inicio
+    def formatar_data(self, data_str: str) -> str:
         """
-        start_of_day = self.current_day.replace(hour=0, minute=0, second=0, microsecond=0)
-        end_of_day = self.current_day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        Converte uma string de data para um objeto datetime e formata no padrão brasileiro (DD/MM/YYYY HH:MM).
+        """
+        try:
+            # Detecta automaticamente o formato da data
+            formatos = ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y"]
+            
+            for formato in formatos:
+                try:
+                    data_obj = datetime.strptime(data_str, formato)
+                    break
+                except ValueError:
+                    continue
+            else:
+                raise ValueError("Formato de data não reconhecido.")
+
+            # Retorna a data formatada no padrão brasileiro
+            return data_obj.strftime("%d/%m/%Y %H:%M")
+
+        except Exception as e:
+            return f"Erro ao converter data: {e}"
         
-        agendamentos = self.db.fetch_all(query, (start_of_day, end_of_day))
-        return agendamentos if agendamentos else []
+    def fetch_agendamentos(self):
+        agora = datetime.now()
+        # data_formatada = agora.strftime("%d/%m/%Y")
+        data_formatada = self.current_day.strftime("%Y-%m-%d")
+
+        # start_of_day = self.current_day.replace(hour=0, minute=0, second=0, microsecond=0)
+        # end_of_day = self.current_day.replace(hour=23, minute=59, second=59, microsecond=999999)
+        
+        api = APIRequest(
+            base_url="http://127.0.0.1:8000",
+            auth_url="http://127.0.0.1:8000/token/",
+            username="matheus",
+            password="senha123"
+        )
+        agendamentos = api.get(endpoint=f'/agenda/?datahora_inicio={data_formatada}&datahora_fim={data_formatada}')
+        return agendamentos['message']
 
     def update_agenda(self):
         """Atualiza a tela com os agendamentos do dia atual."""
@@ -80,6 +97,7 @@ class ProximosAgendamentos:
             widget.destroy()
 
         # Buscar agendamentos do banco
+        agendamentos = []
         agendamentos = self.fetch_agendamentos()
 
         # Exibir o dia atual
@@ -88,22 +106,19 @@ class ProximosAgendamentos:
         # Adicionar os agendamentos como Labels
         if agendamentos:
             for agendamento in agendamentos:
-
-
-
-                end_time = agendamento[0].strftime('%H:%M')
-                start_time = agendamento[1].strftime('%H:%M')
-                endereco_agendamento = agendamento[2]
-                descricao = agendamento[3]
-                email = agendamento[4]
-                endereco_cliente = agendamento[5]
-                cliente = agendamento[6]
-                telefone = agendamento[7]
+                end_time = self.formatar_data( agendamento['datahora_fim'])  
+                start_time =self.formatar_data( agendamento['datahora_inicio']) 
+                endereco_agendamento = agendamento['endereco']
+                descricao = agendamento['obs']
+                email = agendamento['cliente']['email']
+                endereco_cliente = agendamento['cliente']['endereco']
+                cliente = agendamento['cliente']['nome']
+                telefone = agendamento['cliente']['telefone']
 
 
                 agendamento_label = tk.Label(
                     self.agenda_frame, 
-                    text=f"Inicio:{start_time} - Fim:{end_time}: - Endereço Agendamento: {endereco_agendamento} - Descrição:{descricao} - Cliente:{cliente}", 
+                    text=f"Inicio:{start_time} - Fim:{end_time}: - Endereço Agendamento: {endereco_agendamento} - Descrição:{descricao} - Cliente:{cliente} - Email:{email}", 
                     font=("Arial", 12),  
                     bg="#888888",
                     anchor="w"
@@ -123,15 +138,11 @@ class ProximosAgendamentos:
         self.current_day += timedelta(days=1)
         self.update_agenda()
 
-    def close_db(self):
-        """Fecha a conexão com o banco ao fechar o app."""
-        self.db.close()
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = ProximosAgendamentos(root)
     
     # Fechar conexão ao sair
-    root.protocol("WM_DELETE_WINDOW", lambda: (app.close_db(), root.destroy()))
+    root.protocol("WM_DELETE_WINDOW", lambda: (root.destroy()))
 
     root.mainloop()

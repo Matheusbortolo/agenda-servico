@@ -3,6 +3,7 @@ from tkinter import ttk
 from mysql_connection import MySQLConnection  # Importando a classe de conexão MySQL
 from dotenv import load_dotenv
 from datetime import datetime
+from request import APIRequest
 
 import os
 
@@ -66,33 +67,25 @@ class ClientesApp:
         
         self.tree.pack(fill=tk.BOTH, expand=True)
 
-        # Criar a instância de conexão com o banco de dados
-        self.db = MySQLConnection(
-            host=db_host, 
-            user=db_user, 
-            password=db_password, 
-            database=db_name
-        )
 
         # Carregar os clientes assim que a tela for aberta
         self.carregar_clientes()
 
     def carregar_clientes(self):
-        """Conectar ao banco de dados e carregar os clientes na interface."""
-        self.db.connect()  # Conectar ao banco de dados
-
-        # Realizar a consulta SQL para pegar os clientes
-        query = "SELECT nome, endereco, telefone, email FROM clientes"
-        clientes = self.db.fetch_all(query)  # Buscando todos os resultados
+        api = APIRequest(
+            base_url="http://127.0.0.1:8000",
+            auth_url="http://127.0.0.1:8000/token/",
+            username="matheus",
+            password="senha123"
+        )
+        clientes = api.get(endpoint='/clientes/')
+        
 
         # Limpar a tabela antes de preencher novamente
         for item in self.tree.get_children():
             self.tree.delete(item)
 
         # Verificando se existem clientes retornados e inserindo no Treeview
-        if clientes:
-            for cliente in clientes:
-                self.tree.insert("", "end", values=(cliente[0], cliente[1], cliente[2], cliente[3]))
-
-        # Fechar a conexão com o banco de dados
-        self.db.close()
+        if clientes['message']:
+            for cliente in clientes['message']:
+                self.tree.insert("", "end", values=(cliente['nome'], cliente['endereco'], cliente['telefone'], cliente['email']))
